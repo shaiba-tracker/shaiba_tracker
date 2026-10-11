@@ -9,7 +9,8 @@ let pendingRestore = null;
 
 const daysSince = (k) => Math.round((today() - parseKey(k)) / 86400000);
 const anyGoals = () => totalGoals() > 0 || family.order.some((id) => id !== family.active && goalsOf(family.profiles[id]) > 0);
-const backupDue = () => anyGoals() && (!state.lastBackup || daysSince(state.lastBackup) >= BACKUP_DAYS);
+// С синхронизацией данные и так в облаке с историей — о копии не напоминаем
+const backupDue = () => !syncOn() && anyGoals() && (!state.lastBackup || daysSince(state.lastBackup) >= BACKUP_DAYS);
 
 // Короткая сводка для сравнения «сейчас / в файле»
 function summary(f) {
@@ -51,6 +52,7 @@ function renderSettings() {
   del.hidden = family.order.length < 2;
   del.disabled = locked;
   renderPlayer(locked);
+  renderSync(locked);
   // Открытый режим уже видно на плашке под вкладками, здесь — только замок
   const bar = document.getElementById('pinBar');
   bar.hidden = !(hasPin() && locked);
@@ -407,3 +409,4 @@ setInterval(() => {
 
 renderAll();
 checkReport();
+syncSoon(300);

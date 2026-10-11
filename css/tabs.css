@@ -731,6 +731,14 @@ dialog::backdrop { background: rgba(20,33,61,.45); backdrop-filter: blur(2px); }
 }
 .gear-dot[hidden] { display: none; }
 .sb-gear.on { background: var(--red); }
+/* Синхронизация: значок на табло и блок в Настройках */
+.sb-sync[hidden] { display: none; }
+.sb-sync.err { background: var(--red-d); }
+.sy-state { font-size: 15px; padding: 8px 12px; border-radius: 12px; background: #eef2f7; margin: 0 0 10px; }
+.sy-state.bad { background: #fde3e5; }
+#syForm[hidden], .bk-actions[hidden] { display: none; }
+#syForm .btn { margin-bottom: 8px; }
+.sy-choice { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; margin-bottom: 10px; }
 /* Вкладка «Настройки»: на широком экране две колонки (игрок и свитер | копия и PIN), на узком — одна */
 #tab-settings { max-width: 1000px; margin: 0 auto; }
 .set-title { margin: 0 0 10px; }

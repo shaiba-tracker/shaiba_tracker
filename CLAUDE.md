@@ -10,7 +10,7 @@ Workflow preference of the owner: before implementing a feature, ask clarifying 
 
 ## Running
 
-There is no build, no package manager and no tests in the repo. Files: `index.html`, `css/*.css` (3), `js/*.js` (6).
+There is no build, no package manager and no tests in the repo. Files: `index.html`, `css/*.css` (3), `js/*.js` (7).
 
 - Published with GitHub Pages from `main` (repo `shaiba-tracker/shaiba_tracker`, public): https://shaiba-tracker.github.io/shaiba_tracker/. A `git push` to `main` deploys in about a minute, so commit and push only when asked. `.nojekyll` turns off Jekyll. The old private history is in the `archive` remote/branch (a private repo); never push it to `origin`.
 - For local checks open `index.html` directly, or serve the folder (also for phones/TV on the LAN):
@@ -44,6 +44,7 @@ Tips:
 - `js/ui.js` — `<dialog>` fallback for old TV browsers, sound, `celebrate()`, the horse and the header, parent PIN, the global `[data-close]` handler.
 - `js/month.js` — Month tab, challenge card, «Подходы», «День» and habit dialogs.
 - `js/tabs.js` — Path, Shop (+prize dialog), Stats, Hall of fame.
+- `js/sync.js` — sync with a private GitHub repo (see **Sync** below). Loaded before `app.js`.
 - `js/app.js` — Settings and backup, players, tabs, `renderAll()`, start. Must stay last. Settings is a full-screen tab (`#tab-settings`, static markup in `index.html`, updated by `renderSettings()`); it has no tab button, the ⚙️ on the scoreboard calls `showTab('settings')` and gets the `.on` class.
 - CSS: `css/base.css` → `css/tabs.css` → `css/screens.css` (TV, phone, old browsers). **Keep this order**: many rules override each other by order with equal specificity, so moving a section between files can silently change the layout.
 - Every `<link>`/`<script>` in `index.html` has `?v=N`. Bump N in **all** of them on every change, otherwise a phone or the TV may mix cached old and new files.
@@ -57,6 +58,8 @@ Tips:
 - `challenges{mondayKey: {...}}`: the weekly challenge.
 - `player{club, number, fhId}`: the player profile (team, game number, fhspb.ru link), edited in the «Игрок» block of Settings and shown as a card on the Path tab (with `state.team` as the name). `fhId` is the fhspb.ru PlayerID GUID only; `fhLink`/`fhPhoto` build the page and photo URLs, the photo is hot-linked and never stored.
 - `pcolor` (the child's color), `reportSeen`; the shared `pin{hash, word}` and `lastBackup`.
+
+**Sync** (`js/sync.js`). The family is mirrored to `family.json` in a private GitHub repo through the REST contents API (CORS works from the browser). The connection `conf = {repo, token, sha, base}` lives only in localStorage key `puck-sync-v1`, never in `family`, the cloud or backup files. `cloudData()` is the family without the device-local `active` and `shared.sound`. `save()` runs the `afterSave` hooks; sync debounces a push (about 2.5 s) and also pulls on start, on `visibilitychange`, on `online` and every 60 s. Each run: GET the file; if its sha differs from `conf.sha`, `merge3(base, local, remote)` and `applyCloud()` (goes through `familyFromFile()`/`migrate()`, keeps `active` and sound); then PUT with the remote sha, retrying on 409. Merge rules: a one-sided change wins; objects merge by key; string arrays (log ids, owned, order) and arrays of `{id}` objects (habits, prizes, orders) merge as sets (one-sided deletions stay deleted); `shop.spent` adds both deltas; otherwise this device wins. Sync waits while any `<dialog>` is open. A public repo is refused on connect. `backupDue()` is off while sync is on. A new data field needs nothing extra for sync unless it is device-local (then strip it in `cloudData()` and keep it in `applyCloud()`). Tests mock `fetch` for `api.github.com`.
 
 **Derived values are always recomputed, never stored.**
 - Rank: `totalGoals()` = all entries in `log`.

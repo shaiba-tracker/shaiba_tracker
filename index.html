@@ -7,9 +7,9 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;800;900&family=Russo+One&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/base.css?v=8">
-  <link rel="stylesheet" href="css/tabs.css?v=8">
-  <link rel="stylesheet" href="css/screens.css?v=8">
+  <link rel="stylesheet" href="css/base.css?v=9">
+  <link rel="stylesheet" href="css/tabs.css?v=9">
+  <link rel="stylesheet" href="css/screens.css?v=9">
 </head>
 <body>
   <svg width="0" height="0" style="position:absolute" aria-hidden="true">
@@ -62,6 +62,7 @@
           <span class="sb-label">Звание</span>
           <span id="sbLevel" class="sb-level"></span>
         </div>
+        <button id="syncBtn" class="sb-sound sb-sync" aria-label="Синхронизация" hidden></button>
         <button id="soundBtn" class="sb-sound" aria-label="Звук"></button>
         <button id="settingsBtn" class="sb-sound sb-gear" aria-label="Настройки" title="Настройки">⚙️<i id="gearDot" class="gear-dot" hidden></i></button>
       </div>
@@ -117,9 +118,48 @@
         </div>
         <div class="set-col">
           <section class="sbox set-block">
+            <h3 class="sbox-title">☁️ Синхронизация</h3>
+            <p id="syState" class="sy-state"></p>
+            <div id="syForm">
+              <label class="field"><span>Приватный репозиторий GitHub (владелец/имя)</span>
+                <input id="syRepo" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Например: ivanov/shaiba_data"></label>
+              <label class="field"><span>Токен доступа к этому репозиторию</span>
+                <input id="syToken" type="password" autocomplete="off" placeholder="github_pat_…"></label>
+              <button type="button" id="syConnect" class="btn btn-blue">☁️ Подключить</button>
+            </div>
+            <div id="syActions" class="bk-actions">
+              <button type="button" id="syNow" class="btn btn-blue">🔄 Синхронизировать</button>
+              <button type="button" id="syOff" class="btn btn-ghost danger">Отключить</button>
+            </div>
+            <div id="syConfirm" class="bk-confirm" hidden>
+              <p><b>В облаке уже есть другие данные.</b> Что сделать?</p>
+              <table class="bk-cmp">
+                <thead><tr><th></th><th>Это устройство</th><th>В облаке</th></tr></thead>
+                <tbody id="syCmp"></tbody>
+              </table>
+              <div class="sy-choice">
+                <button type="button" data-sy="cloud" class="btn btn-blue">⬇️ Взять из облака</button>
+                <button type="button" data-sy="merge" class="btn btn-ghost">🔀 Объединить</button>
+                <button type="button" data-sy="local" class="btn btn-ghost danger">⬆️ Заменить облако данными устройства</button>
+                <button type="button" id="syCancel" class="btn btn-ghost">Отмена</button>
+              </div>
+              <div class="note"><b>Примечание:</b><ul>
+                <li>«Взять из облака» — данные этого устройства заменятся данными из облака.</li>
+                <li>«Объединить» — сложатся обе стороны; игроки, заведённые отдельно на разных устройствах, станут разными игроками.</li>
+                <li>«Заменить облако» — прежняя версия останется в истории репозитория.</li>
+              </ul></div>
+            </div>
+            <p id="syMsg" class="bk-msg" role="status"></p>
+            <div class="note"><b>Примечание:</b><ul>
+              <li>Данные семьи хранятся в приватном репозитории GitHub, на каждом устройстве один раз вводится токен.</li>
+              <li>Звук и выбранный игрок у каждого устройства свои.</li>
+              <li>Как создать репозиторий и токен — в README, раздел «Синхронизация».</li>
+            </ul></div>
+          </section>
+          <section class="sbox set-block">
             <h3 class="sbox-title">💾 Резервная копия</h3>
             <div class="note"><b>Примечание:</b><ul>
-              <li>Все шайбы, рекорды, экипировка и призы хранятся только в этом браузере.</li>
+              <li>Без синхронизации все шайбы, рекорды, экипировка и призы хранятся только в этом браузере.</li>
               <li>Скачай копию в файл и храни её в надёжном месте.</li>
               <li>Если данные пропадут или нужно перенести их на другое устройство — восстанови из файла.</li>
             </ul></div>
@@ -385,11 +425,12 @@
       };
     })();
   </script>
-  <script src="js/data.js?v=8"></script>
-  <script src="js/logic.js?v=8"></script>
-  <script src="js/ui.js?v=8"></script>
-  <script src="js/month.js?v=8"></script>
-  <script src="js/tabs.js?v=8"></script>
-  <script src="js/app.js?v=8"></script>
+  <script src="js/data.js?v=9"></script>
+  <script src="js/logic.js?v=9"></script>
+  <script src="js/ui.js?v=9"></script>
+  <script src="js/month.js?v=9"></script>
+  <script src="js/tabs.js?v=9"></script>
+  <script src="js/sync.js?v=9"></script>
+  <script src="js/app.js?v=9"></script>
 </body>
 </html>

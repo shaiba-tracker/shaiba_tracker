@@ -353,9 +353,12 @@ function syncFamily() {
   family.profiles[family.active] = own;
   family.shared = shared;
 }
+// Что сделать после каждого сохранения (синхронизация с облаком добавляет сюда отправку)
+const afterSave = [];
 function save() {
   syncFamily();
   try { localStorage.setItem(FAMILY_KEY, JSON.stringify(family)); } catch (e) { /* без сохранения */ }
+  afterSave.forEach((fn) => fn());
 }
 const goalsOf = (p) => Object.values(p.log).reduce((n, a) => n + a.length, 0);
 save(); // данные из прошлой версии сразу переезжают в хранилище семьи

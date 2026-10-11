@@ -231,6 +231,7 @@ function renderHeader() {
   tn.textContent = `🏒 ${state.team} ▾`;
   tn.style.setProperty('--pc', state.pcolor || COLORS[0]);
   document.getElementById('soundBtn').textContent = state.sound ? '🔊' : '🔇';
+  paintSync();
   document.getElementById('gearDot').hidden = !backupDue();
   // Родительский режим открыт — видно на любой вкладке, закрыть можно сразу
   const bar = document.getElementById('parentBar');
