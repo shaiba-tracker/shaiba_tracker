@@ -1,0 +1,395 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Шайба-трекер</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;800;900&family=Russo+One&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/base.css?v=7">
+  <link rel="stylesheet" href="css/tabs.css?v=7">
+  <link rel="stylesheet" href="css/screens.css?v=7">
+</head>
+<body>
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <defs>
+      <!-- Шайба: летит в ворота в анимации гола -->
+      <symbol id="puck" viewBox="0 0 100 80">
+        <ellipse cx="50" cy="56" rx="44" ry="16" fill="#0d0f17"/>
+        <rect x="6" y="26" width="88" height="30" fill="#1b1e2b"/>
+        <ellipse cx="50" cy="26" rx="44" ry="16" fill="#3a3f55"/>
+        <ellipse cx="50" cy="24" rx="34" ry="10" fill="#4a5070"/>
+        <ellipse cx="37" cy="40" rx="7" ry="8" fill="#fff"/>
+        <ellipse cx="63" cy="40" rx="7" ry="8" fill="#fff"/>
+        <circle cx="39" cy="42" r="3.6" fill="#111"/>
+        <circle cx="65" cy="42" r="3.6" fill="#111"/>
+        <path d="M42 50 Q50 56 58 50" stroke="#fff" stroke-width="3" fill="none" stroke-linecap="round"/>
+        <ellipse cx="27" cy="49" rx="4" ry="2.4" fill="#ff7b9c" opacity=".8"/>
+        <ellipse cx="73" cy="49" rx="4" ry="2.4" fill="#ff7b9c" opacity=".8"/>
+      </symbol>
+      <!-- Конь-огонь: рисунок заполняет app.js (экипировка меняется) -->
+      <symbol id="horse" viewBox="0 0 200 240"></symbol>
+      <symbol id="net" viewBox="0 0 200 130">
+        <defs>
+          <pattern id="mesh" width="12" height="12" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+            <path d="M0 0H12M0 0V12" stroke="#c9d6e6" stroke-width="2"/>
+          </pattern>
+        </defs>
+        <path d="M20 125 L30 30 Q100 0 170 30 L180 125 Z" fill="#fff"/>
+        <path d="M20 125 L30 30 Q100 0 170 30 L180 125 Z" fill="url(#mesh)"/>
+        <path d="M14 126 L14 22 Q100 -6 186 22 L186 126" fill="none" stroke="#e63946" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+        <rect x="0" y="122" width="200" height="8" rx="4" fill="#e63946"/>
+      </symbol>
+    </defs>
+  </svg>
+
+  <div class="app">
+    <header class="top">
+      <div class="brand">
+        <svg class="mascot bob" viewBox="0 0 200 240" aria-hidden="true"><use href="#horse"/></svg>
+        <div>
+          <h1>Шайба-трекер</h1>
+          <button type="button" id="teamName" class="team" aria-haspopup="dialog" title="Сменить игрока"></button>
+        </div>
+      </div>
+      <div class="scoreboard" aria-label="Табло">
+        <div class="sb-cell">
+          <span class="sb-label">Шайбы</span>
+          <span id="sbGoals" class="sb-num">0</span>
+        </div>
+        <div class="sb-cell">
+          <span class="sb-label">Звание</span>
+          <span id="sbLevel" class="sb-level"></span>
+        </div>
+        <button id="soundBtn" class="sb-sound" aria-label="Звук"></button>
+        <button id="settingsBtn" class="sb-sound sb-gear" aria-label="Настройки" title="Настройки">⚙️<i id="gearDot" class="gear-dot" hidden></i></button>
+      </div>
+    </header>
+
+    <nav class="tabs" role="tablist">
+      <button class="tab-btn active" data-tab="today" role="tab">🏒 Месяц</button>
+      <button class="tab-btn" data-tab="path" role="tab">🗺️ Путь</button>
+      <button class="tab-btn" data-tab="locker" role="tab">🛍️ Магазин</button>
+      <button class="tab-btn" data-tab="stats" role="tab">📊 Статистика</button>
+      <button class="tab-btn" data-tab="fame" role="tab">🏅 Зал славы</button>
+    </nav>
+
+    <div id="parentBar" class="parent-bar" role="status" hidden></div>
+
+    <main class="rink">
+      <section id="tab-today" class="tab active"></section>
+      <section id="tab-path" class="tab"></section>
+      <section id="tab-locker" class="tab"></section>
+      <section id="tab-stats" class="tab"></section>
+      <section id="tab-fame" class="tab"></section>
+    <section id="tab-settings" class="tab" aria-label="Настройки">
+      <h2 class="set-title">⚙️ Настройки</h2>
+      <div id="pinBar" class="pin-bar" hidden></div>
+      <div class="set-grid">
+        <div class="set-col">
+          <section class="sbox set-block">
+            <h3 class="sbox-title">👦 Игрок</h3>
+            <label class="field"><span>Имя и фамилия (видно в шапке)</span>
+              <input id="pName" maxlength="30" autocomplete="off" placeholder="Например: Иван Иванов"></label>
+            <div class="pl-fields">
+              <label class="field"><span>Команда</span>
+                <input data-pl="club" maxlength="60" autocomplete="off" placeholder="Например: Армия СКА 17"></label>
+              <label class="field"><span>Игровой номер</span>
+                <input data-pl="number" type="number" inputmode="numeric" min="1" max="99"></label>
+              <label class="field pl-wide"><span>Ссылка на страницу игрока на fhspb.ru</span>
+                <input data-pl="link" type="url" inputmode="url" autocomplete="off" placeholder="https://www.fhspb.ru/Player?…PlayerID=…"></label>
+            </div>
+            <p id="plLink" class="pl-link"></p>
+            <div class="field"><span>Цвет игрока (плашка с именем)</span><div id="pColor" class="pick"></div></div>
+            <button type="button" id="profDelete" class="btn btn-ghost danger" hidden>🗑️ Удалить этого игрока</button>
+          </section>
+          <section class="sbox set-block">
+            <h3 class="sbox-title">👕 Свитер Коня-огня</h3>
+            <div class="jersey-fields">
+              <label class="field"><span>Имя на свитере</span>
+                <input id="jName" maxlength="10" autocomplete="off" placeholder="ИГРОК"></label>
+              <label class="field"><span>Номер</span>
+                <input id="jNum" type="number" inputmode="numeric" min="1" max="99" placeholder="17"></label>
+            </div>
+            <p class="muted set-note">Номер виден на груди свитера, имя — на табличке в Магазине.</p>
+          </section>
+        </div>
+        <div class="set-col">
+          <section class="sbox set-block">
+            <h3 class="sbox-title">💾 Резервная копия</h3>
+            <div class="note"><b>Примечание:</b><ul>
+              <li>Все шайбы, рекорды, экипировка и призы хранятся только в этом браузере.</li>
+              <li>Скачай копию в файл и храни её в надёжном месте.</li>
+              <li>Если данные пропадут или нужно перенести их на другое устройство — восстанови из файла.</li>
+            </ul></div>
+            <p id="bkStatus" class="bk-status"></p>
+            <div class="bk-actions">
+              <button type="button" id="bkSave" class="btn btn-blue">⬇️ Скачать копию</button>
+              <label id="bkRestore" class="btn btn-ghost bk-file">⬆️ Восстановить из файла
+                <input id="bkFile" type="file" accept=".json,application/json" hidden></label>
+            </div>
+            <div id="bkConfirm" class="bk-confirm" hidden>
+              <p><b>Заменить всё на данные из файла?</b> Текущие отметки на этом устройстве пропадут.</p>
+              <table class="bk-cmp">
+                <thead><tr><th></th><th>Сейчас</th><th>В файле</th></tr></thead>
+                <tbody id="bkCmp"></tbody>
+              </table>
+              <div class="dlg-actions">
+                <button type="button" id="bkNo" class="btn btn-ghost">Отмена</button>
+                <span class="spacer"></span>
+                <button type="button" id="bkYes" class="btn btn-red">Заменить</button>
+              </div>
+            </div>
+            <p id="bkMsg" class="bk-msg" role="status"></p>
+          </section>
+          <section class="sbox set-block">
+            <h3 class="sbox-title">🔐 Родительский PIN</h3>
+            <p id="pinState" class="muted set-note"></p>
+            <div id="pinActions" class="bk-actions"></div>
+          </section>
+        </div>
+      </div>
+    </section>
+    </main>
+  </div>
+
+  <dialog id="habitDialog">
+    <form id="habitForm" method="dialog">
+      <button type="button" class="dlg-x" data-close aria-label="Закрыть окно" title="Закрыть">✕</button>
+      <h2 id="dlgTitle">Новая привычка</h2>
+      <label class="field">
+        <span>Что будем делать?</span>
+        <input id="hName" maxlength="40" required placeholder="Например: почистить зубы" autocomplete="off">
+      </label>
+      <div class="field" id="hGroupField">
+        <span>Группа</span>
+        <div id="hGroup" class="seg" role="group" aria-label="Группа"></div>
+      </div>
+      <div class="field">
+        <span>Значок</span>
+        <div id="emojiPick" class="pick"></div>
+      </div>
+      <div class="field">
+        <span>Цвет формы</span>
+        <div id="colorPick" class="pick"></div>
+      </div>
+      <div class="field">
+        <span>Как отмечать</span>
+        <div id="hMode" class="seg" role="group" aria-label="Как отмечать">
+          <button type="button" data-mode="check">✓ Галочка</button>
+          <button type="button" data-mode="count">🔢 Количество</button>
+        </div>
+      </div>
+      <div id="hCountFields" class="count-fields" hidden>
+        <label class="field">
+          <span>Единица</span>
+          <select id="hUnit"></select>
+        </label>
+        <label class="field">
+          <span>Норма в день</span>
+          <input id="hGoal" type="number" inputmode="numeric" min="1" max="9999" placeholder="20">
+        </label>
+        <p class="muted hint">Шайба засчитывается, когда за день набрана норма. Подходы складываются.</p>
+      </div>
+      <div class="dlg-actions">
+        <button type="button" id="hDelete" class="btn btn-ghost danger">Удалить</button>
+        <span class="spacer"></span>
+        <button type="button" id="hCancel" class="btn btn-ghost">Отмена</button>
+        <button type="submit" class="btn btn-blue">Сохранить</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="setsDialog">
+    <form id="setsForm">
+      <button type="button" class="dlg-x" data-close aria-label="Закрыть окно" title="Закрыть">✕</button>
+      <h2 id="sTitle"></h2>
+      <p id="sDate" class="muted s-date"></p>
+      <div id="sProgress" class="s-progress"></div>
+      <div class="field">
+        <span>Подходы</span>
+        <div id="sList" class="s-list"></div>
+      </div>
+      <div class="field">
+        <span>Добавить подход</span>
+        <div id="sQuick" class="s-quick"></div>
+        <div class="s-add">
+          <input id="sInput" type="number" inputmode="numeric" min="1" max="9999" placeholder="Своё число" aria-label="Результат подхода">
+          <span id="sUnit" class="s-unit"></span>
+          <button type="submit" class="btn btn-red">＋ Подход</button>
+        </div>
+      </div>
+      <p id="sRecord" class="s-record"></p>
+      <div class="dlg-actions">
+        <span class="spacer"></span>
+        <button type="button" id="sDone" class="btn btn-blue">Готово</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="dayDialog">
+    <button type="button" class="dlg-x" data-close aria-label="Закрыть окно" title="Закрыть">✕</button>
+    <h2 id="dTitle"></h2>
+    <div class="set-block">
+      <h3 class="set-h">🤒 Скамейка запасных</h3>
+      <div class="note"><b>Примечание:</b><ul>
+        <li>Отметь пропуск по уважительной причине.</li>
+        <li>Серии не сгорят, а процент не испортится.</li>
+        <li>В этот день привычки отмечать нельзя.</li>
+      </ul></div>
+      <div id="dLock" class="pin-bar" hidden><span>🔒 Пропуски за прошлые дни ставит родитель.</span><button type="button" class="btn btn-blue" id="dUnlock">🔓 Ввести PIN</button></div>
+      <div id="dReasons" class="reasons"></div>
+    </div>
+    <section id="dNoteSec" class="set-block" hidden>
+      <h3 class="set-h">📝 Заметка об игре</h3>
+      <div id="dQuick" class="note-quick" role="group" aria-label="Быстрые заметки"></div>
+      <div id="dCount" class="micro count" hidden>
+        <span id="dCountLbl" class="count-lbl"></span>
+        <div class="count-row">
+          <button type="button" class="btn btn-ghost" data-step="-1" aria-label="Меньше">−</button>
+          <input id="dCountIn" type="number" inputmode="numeric" min="0" max="20" value="0">
+          <button type="button" class="btn btn-ghost" data-step="1" aria-label="Больше">+</button>
+        </div>
+        <button type="button" id="dCountAdd" class="btn btn-blue">Записать</button>
+        <p id="dCountMsg" class="micro-msg" role="alert"></p>
+      </div>
+      <div id="dMicro" class="micro" hidden>
+        <label>🥅 Забили <input id="dFor" type="number" inputmode="numeric" min="0" max="99" placeholder="0"></label>
+        <b>:</b>
+        <label>🧤 Пропустили <input id="dAgainst" type="number" inputmode="numeric" min="0" max="99" placeholder="0"></label>
+        <button type="button" id="dMicroAdd" class="btn btn-blue">Записать</button>
+        <p id="dMicroMsg" class="micro-msg" role="alert"></p>
+      </div>
+      <textarea id="dNote" class="day-note" maxlength="200" rows="3" placeholder="Например: турнир, забил 2 гола"></textarea>
+      <p id="dNoteCount" class="note-count"></p>
+    </section>
+    <div class="dlg-actions">
+      <button type="button" id="dClear" class="btn btn-ghost danger">Убрать пропуск</button>
+      <span class="spacer"></span>
+      <button type="button" id="dCancel" class="btn btn-blue">Готово</button>
+    </div>
+  </dialog>
+
+  <dialog id="profDialog">
+    <button type="button" class="dlg-x" data-close aria-label="Закрыть окно" title="Закрыть">✕</button>
+    <h2>👥 Кто играет?</h2>
+    <div id="profList" class="prof-list"></div>
+    <form id="profForm" class="prof-form" hidden>
+      <h3 class="set-h">＋ Новый игрок</h3>
+      <label class="field"><span>Имя ребёнка</span>
+        <input id="profName" maxlength="30" autocomplete="off" placeholder="Например: Саша"></label>
+      <label class="field"><span>С чего начать</span>
+        <select id="profFrom"></select></label>
+      <div class="dlg-actions">
+        <button type="button" id="profCancel" class="btn btn-ghost">Отмена</button>
+        <span class="spacer"></span>
+        <button type="submit" class="btn btn-blue">Добавить</button>
+      </div>
+    </form>
+    <div id="profFoot" class="dlg-actions">
+      <button type="button" id="profAdd" class="btn btn-ghost">＋ Добавить игрока</button>
+      <span class="spacer"></span>
+      <button type="button" class="btn btn-blue" data-close>Готово</button>
+    </div>
+    <div class="note"><b>Примечание:</b><ul>
+      <li>Нажми на карточку, чтобы сменить игрока.</li>
+      <li>У каждого свои привычки, шайбы, Конь-огонь, призы и заметки.</li>
+      <li>Общие только PIN и звук.</li>
+      <li>Игрока добавляет родитель (с PIN, если он задан), а удаляет — только родитель с PIN в Настройках.</li>
+    </ul></div>
+  </dialog>
+
+  <dialog id="reportDialog">
+    <button type="button" class="dlg-x" data-close aria-label="Закрыть окно" title="Закрыть">✕</button>
+    <h2 id="rTitle"></h2>
+    <p class="muted">Месяц позади — вот как сыграла команда:</p>
+    <div id="rBody" class="report"></div>
+    <div class="dlg-actions">
+      <button type="button" id="rStats" class="btn btn-ghost">📊 В статистику</button>
+      <span class="spacer"></span>
+      <button type="button" id="rOk" class="btn btn-blue">Вперёд! 🏒</button>
+    </div>
+  </dialog>
+
+
+  <dialog id="pinDialog" class="pin-dlg">
+    <form id="pinForm" novalidate>
+      <button type="button" class="dlg-x" data-close aria-label="Закрыть окно" title="Закрыть">✕</button>
+      <h2 id="pinTitle"></h2>
+      <p id="pinText" class="muted"></p>
+      <div class="pin-box" data-pinmode="enter">
+        <input id="pinIn" type="password" inputmode="numeric" maxlength="4" autocomplete="off" aria-label="PIN из 4 цифр" placeholder="• • • •">
+      </div>
+      <div data-pinmode="set">
+        <label class="field"><span>Новый PIN (4 цифры)</span>
+          <input id="pinNew" type="password" inputmode="numeric" maxlength="4" autocomplete="off"></label>
+        <label class="field"><span>Повтори PIN</span>
+          <input id="pinNew2" type="password" inputmode="numeric" maxlength="4" autocomplete="off"></label>
+        <label class="field"><span>Кодовое слово (если забудешь PIN)</span>
+          <input id="pinWord" maxlength="30" autocomplete="off" placeholder="Например: девичья фамилия бабушки"></label>
+      </div>
+      <div data-pinmode="forgot">
+        <label class="field"><span>Кодовое слово</span>
+          <input id="pinWord2" maxlength="30" autocomplete="off"></label>
+      </div>
+      <p id="pinMsg" class="pin-msg" role="alert"></p>
+      <div class="dlg-actions">
+        <button type="button" id="pinForgot" class="btn btn-ghost">Забыли PIN?</button>
+        <span class="spacer"></span>
+        <button type="submit" class="btn btn-blue">OK</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="prizeDialog">
+    <form id="prizeForm">
+      <button type="button" class="dlg-x" data-close aria-label="Закрыть окно" title="Закрыть">✕</button>
+      <h2 id="prTitle">Новый приз</h2>
+      <label class="field"><span>Какой приз?</span>
+        <input id="prName" maxlength="40" required autocomplete="off" placeholder="Например: поход в аквапарк"></label>
+      <div class="field"><span>Значок</span><div id="prEmoji" class="pick"></div></div>
+      <label class="field"><span>Цена в шайбах</span>
+        <input id="prPrice" type="number" inputmode="numeric" min="1" max="9999" required placeholder="30"></label>
+      <div class="dlg-actions">
+        <button type="button" id="prDelete" class="btn btn-ghost danger">Удалить</button>
+        <span class="spacer"></span>
+        <button type="button" id="prCancel" class="btn btn-ghost">Отмена</button>
+        <button type="submit" class="btn btn-blue">Сохранить</button>
+      </div>
+    </form>
+  </dialog>
+
+  <div id="goalOverlay" class="goal-overlay" popover="manual" aria-hidden="true">
+    <div class="goal-stage">
+      <svg class="goal-net"><use href="#net"/></svg>
+      <svg class="goal-horse" viewBox="0 0 200 240"><use href="#horse"/></svg>
+      <svg class="goal-puck"><use href="#puck"/></svg>
+      <div id="goalText" class="goal-text">ГОЛ!</div>
+    </div>
+    <div id="confetti" class="confetti"></div>
+  </div>
+
+  <div id="tooltip" class="tooltip" role="tooltip"></div>
+
+  <script>
+    // Если скрипт упадёт на каком-то устройстве (например, на ТВ) — показываем ошибку на экране
+    // и отправляем её в журнал локального сервера, чтобы было видно, что сломалось
+    (function () {
+      window.onerror = function (msg, src, line, col) {
+        var text = msg + ' @' + String(src || '').split('/').pop() + ':' + line + ':' + col;
+        try { new Image().src = '__err?' + encodeURIComponent(text + ' | ' + navigator.userAgent); } catch (e) { /* без журнала */ }
+        var bar = document.getElementById('jsErr');
+        if (!bar) { bar = document.createElement('div'); bar.id = 'jsErr'; bar.className = 'js-err'; document.body.appendChild(bar); }
+        bar.textContent = '⚠️ Ошибка: ' + text;
+      };
+    })();
+  </script>
+  <script src="js/data.js?v=7"></script>
+  <script src="js/logic.js?v=7"></script>
+  <script src="js/ui.js?v=7"></script>
+  <script src="js/month.js?v=7"></script>
+  <script src="js/tabs.js?v=7"></script>
+  <script src="js/app.js?v=7"></script>
+</body>
+</html>
