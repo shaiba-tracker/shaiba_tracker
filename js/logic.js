@@ -203,6 +203,7 @@ const CHAL_DIFF = [
   { label: 'Трудный', medal: '🥇', bonus: 10 },
 ];
 const CHAL_LAST_PICK = 3; // 0 — пн … 3 — чт
+const CHAL_START = [10, 15, 20]; // цели новичка: лёгкий, средний, трудный
 const weekStart = (d) => addDays(d, -((d.getDay() + 6) % 7));
 const weekDays = (mon) => Array.from({ length: 7 }, (_, i) => dkey(addDays(parseKey(mon), i)));
 const weekPucks = (days) => days.reduce((n, k) => n + (state.log[k] || []).length, 0);
@@ -214,8 +215,8 @@ function chalOffers(mon) {
   const prev = weekDays(dkey(addDays(parseKey(mon), -7)));
   const act = activeOn(mon);
   const last = weekPucks(prev);
-  const base = last > 0 ? last : Math.max(7, act.length * 2);
-  const pucks = (diff, mult, min) => ({ kind: 'pucks', diff, target: Math.max(min, Math.ceil(base * mult)) });
+  // На прошлой неделе шайб не было (новичок) — цели CHAL_START, иначе от результата прошлой недели
+  const pucks = (diff, mult, min) => ({ kind: 'pucks', diff, target: last > 0 ? Math.max(min, Math.ceil(last * mult)) : CHAL_START[diff] });
   const offers = [pucks(0, 1, 5)];
   // Отстающую ищем среди привычек, которые были всю прошлую неделю: у новой силы ещё нет, она не «отстаёт»
   const old = act.filter((h) => h.createdAt <= prev[0]);

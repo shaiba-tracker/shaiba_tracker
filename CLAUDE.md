@@ -12,8 +12,10 @@ Workflow preference of the owner: before implementing a feature, ask clarifying 
 
 There is no build, no package manager and no tests in the repo. Files: `index.html`, `css/*.css` (3), `js/*.js` (6).
 
-- Open `index.html` directly, or serve the folder for phones/TV on the LAN:
-  `ruby -run -e httpd . -p 8000 -b 0.0.0.0` → `http://<mac-ip>:8000`.
+- Published with GitHub Pages from `main` (repo `shaiba-tracker/shaiba_tracker`, public): https://shaiba-tracker.github.io/shaiba_tracker/. A `git push` to `main` deploys in about a minute, so commit and push only when asked. `.nojekyll` turns off Jekyll. The old private history is in the `archive` remote/branch (a private repo); never push it to `origin`.
+- For local checks open `index.html` directly, or serve the folder (also for phones/TV on the LAN):
+  `ruby -run -e httpd . -p 8000 -b 0.0.0.0` → `http://<mac-ip>:8000`. Each address has its own localStorage.
+- `gh` is installed at `/opt/homebrew/bin/gh` (not on PATH) and logged in.
 - This machine has Ruby and Google Chrome, but **no node and no python**.
 
 ### Verifying changes (headless Chrome)
