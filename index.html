@@ -7,9 +7,9 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;800;900&family=Russo+One&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/base.css?v=10">
-  <link rel="stylesheet" href="css/tabs.css?v=10">
-  <link rel="stylesheet" href="css/screens.css?v=10">
+  <link rel="stylesheet" href="css/base.css?v=11">
+  <link rel="stylesheet" href="css/tabs.css?v=11">
+  <link rel="stylesheet" href="css/screens.css?v=11">
 </head>
 <body>
   <svg width="0" height="0" style="position:absolute" aria-hidden="true">
@@ -326,12 +326,13 @@
       </div>
       <label class="w-check"><input id="wPin" type="checkbox" checked>
         <span>Сразу создать родительский PIN — чтобы ребёнок не менял прошлые дни, привычки, призы и игроков</span></label>
-      <div class="dlg-actions">
-        <button type="button" id="wHave" class="btn btn-ghost">У меня уже есть данные</button>
-        <span class="spacer"></span>
+      <div class="dlg-actions w-go">
         <button type="submit" class="btn btn-red">Начать!</button>
       </div>
-      <p class="w-help"><a href="help.html" target="_blank" rel="noopener">📖 Как пользоваться трекером</a></p>
+      <p class="w-help">
+        <a href="#" id="wHave">📂 У меня уже есть данные</a>
+        <a href="help.html" target="_blank" rel="noopener">📖 Как пользоваться трекером</a>
+      </p>
     </form>
   </dialog>
 
@@ -449,12 +450,12 @@
       };
     })();
   </script>
-  <script src="js/data.js?v=10"></script>
-  <script src="js/logic.js?v=10"></script>
-  <script src="js/ui.js?v=10"></script>
-  <script src="js/month.js?v=10"></script>
-  <script src="js/tabs.js?v=10"></script>
-  <script src="js/sync.js?v=10"></script>
-  <script src="js/app.js?v=10"></script>
+  <script src="js/data.js?v=11"></script>
+  <script src="js/logic.js?v=11"></script>
+  <script src="js/ui.js?v=11"></script>
+  <script src="js/month.js?v=11"></script>
+  <script src="js/tabs.js?v=11"></script>
+  <script src="js/sync.js?v=11"></script>
+  <script src="js/app.js?v=11"></script>
 </body>
 </html>

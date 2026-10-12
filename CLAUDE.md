@@ -71,7 +71,7 @@ When switching or deleting a player call `resetView()` to drop per-child UI stat
 
 **Rendering:** every tab has a `render*()` that rebuilds its `innerHTML` from template strings. After any mutation, call `save()` and then `renderAll()`. `renderAll()` first runs `checkChallenge()` (weekly-challenge completion and its celebration), then re-renders the header, the Month tab and the visible tab. Interaction uses delegated click handlers on the tab containers with `data-*` attributes.
 
-**First run.** `firstRun` (data.js) is true when localStorage has neither `puck-family-v1` nor the legacy key. Then the start code opens `#welcomeDialog` (name, sample or empty habits, optional PIN creation via `openPin('set')`, «У меня уже есть данные» → Settings) instead of the month report. Esc is blocked there. Test pages close it unless `window.__keepWelcome` is set.
+**First run.** `firstRun` (data.js) is true when localStorage has neither `puck-family-v1` nor the legacy key. Then the start code opens `#welcomeDialog` (name, sample or empty habits, optional PIN creation via `openPin('set')`, the «У меня уже есть данные» link → Settings at «Восстановить из файла») instead of the month report. Esc is blocked there. Test pages close it unless `window.__keepWelcome` is set.
 
 **Dialogs:**
 - Native `<dialog>` + `showModal()`.

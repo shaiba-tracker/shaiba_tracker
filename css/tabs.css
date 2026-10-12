@@ -741,7 +741,9 @@ dialog::backdrop { background: rgba(20,33,61,.45); backdrop-filter: blur(2px); }
 .w-seg button { flex: 1 1 180px; }
 .w-check { display: flex; gap: 10px; align-items: flex-start; font-size: 14px; margin: 0 0 14px; cursor: pointer; }
 .w-check input { width: 22px; height: 22px; flex: none; margin: 0; accent-color: var(--blue); }
-.w-help { margin: 12px 0 0; font-size: 14px; text-align: center; }
+.w-go { justify-content: center; }
+.w-go .btn { min-width: 200px; }
+.w-help { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px 20px; margin: 14px 0 0; font-size: 14px; }
 /* Синхронизация: значок на табло и блок в Настройках */
 .sb-sync[hidden] { display: none; }
 .sb-sync.err { background: var(--red-d); }

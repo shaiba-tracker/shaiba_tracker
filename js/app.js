@@ -430,11 +430,12 @@ document.getElementById('welcomeForm').addEventListener('submit', (e) => {
   renderAll();
   if (document.getElementById('wPin').checked && !hasPin()) openPin('set', 'Почти готово!');
 });
-// Второе устройство: данные придут из синхронизации или из файла копии
-document.getElementById('wHave').addEventListener('click', () => {
+// Второе устройство: проще всего восстановить файл копии, запасной путь — синхронизация
+document.getElementById('wHave').addEventListener('click', (e) => {
+  e.preventDefault();
   welDlg.close();
   showTab('settings');
-  document.getElementById('syState').scrollIntoView({ block: 'center' });
+  document.getElementById('bkRestore').scrollIntoView({ block: 'center' });
 });
 
 renderAll();
