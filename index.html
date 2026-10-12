@@ -4,12 +4,19 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Шайба-трекер</title>
+  <!-- Приложение на главном экране: описание, иконки, цвет полосы состояния -->
+  <link rel="manifest" href="manifest.webmanifest?v=12">
+  <link rel="icon" type="image/png" href="icons/icon-192.png">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <meta name="theme-color" content="#a9d6ff">
+  <meta name="apple-mobile-web-app-title" content="Шайба">
+  <meta name="apple-mobile-web-app-capable" content="yes">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;800;900&family=Russo+One&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/base.css?v=11">
-  <link rel="stylesheet" href="css/tabs.css?v=11">
-  <link rel="stylesheet" href="css/screens.css?v=11">
+  <link rel="stylesheet" href="css/base.css?v=12">
+  <link rel="stylesheet" href="css/tabs.css?v=12">
+  <link rel="stylesheet" href="css/screens.css?v=12">
 </head>
 <body>
   <svg width="0" height="0" style="position:absolute" aria-hidden="true">
@@ -115,6 +122,18 @@
                 <input id="jNum" type="number" inputmode="numeric" min="1" max="99" placeholder="17"></label>
             </div>
             <p class="muted set-note">Номер виден на груди свитера, имя — на табличке в Магазине.</p>
+          </section>
+          <section class="sbox set-block">
+            <h3 class="sbox-title">📲 Приложение</h3>
+            <p id="apState" class="muted set-note"></p>
+            <div id="apActions" class="bk-actions" hidden>
+              <button type="button" id="apInstall" class="btn btn-blue">📲 Установить на главный экран</button>
+            </div>
+            <div class="note"><b>Примечание:</b><ul>
+              <li>Приложение открывается с иконкой шайбы, без адресной строки, и работает без интернета. Синхронизация догонит, когда появится сеть.</li>
+              <li>Обновления приходят сами: новая версия скачивается в фоне и появляется при следующем открытии.</li>
+              <li>На iPhone и iPad у приложения на экране «Домой» свои данные, отдельно от Safari. Перенеси их файлом копии или подключи синхронизацию.</li>
+            </ul></div>
           </section>
         </div>
         <div class="set-col">
@@ -439,23 +458,21 @@
 
   <script>
     // Если скрипт упадёт на каком-то устройстве (например, на ТВ) — показываем ошибку на экране
-    // и отправляем её в журнал локального сервера, чтобы было видно, что сломалось
     (function () {
       window.onerror = function (msg, src, line, col) {
         var text = msg + ' @' + String(src || '').split('/').pop() + ':' + line + ':' + col;
-        try { new Image().src = '__err?' + encodeURIComponent(text + ' | ' + navigator.userAgent); } catch (e) { /* без журнала */ }
         var bar = document.getElementById('jsErr');
         if (!bar) { bar = document.createElement('div'); bar.id = 'jsErr'; bar.className = 'js-err'; document.body.appendChild(bar); }
         bar.textContent = '⚠️ Ошибка: ' + text;
       };
     })();
   </script>
-  <script src="js/data.js?v=11"></script>
-  <script src="js/logic.js?v=11"></script>
-  <script src="js/ui.js?v=11"></script>
-  <script src="js/month.js?v=11"></script>
-  <script src="js/tabs.js?v=11"></script>
-  <script src="js/sync.js?v=11"></script>
-  <script src="js/app.js?v=11"></script>
+  <script src="js/data.js?v=12"></script>
+  <script src="js/logic.js?v=12"></script>
+  <script src="js/ui.js?v=12"></script>
+  <script src="js/month.js?v=12"></script>
+  <script src="js/tabs.js?v=12"></script>
+  <script src="js/sync.js?v=12"></script>
+  <script src="js/app.js?v=12"></script>
 </body>
 </html>

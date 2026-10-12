@@ -53,6 +53,7 @@ function renderSettings() {
   del.disabled = locked;
   renderPlayer(locked);
   renderSync(locked);
+  renderInstall();
   // Открытый режим уже видно на плашке под вкладками, здесь — только замок
   const bar = document.getElementById('pinBar');
   bar.hidden = !(hasPin() && locked);
@@ -121,6 +122,40 @@ jNum.addEventListener('input', () => {
 });
 // Ушли с поля с пустым или неверным значением — показываем сохранённое
 [pName, jName, jNum].forEach((el) => el.addEventListener('change', fillProfile));
+
+// ---------- Приложение на главном экране: работа без интернета и установка ----------
+// Service worker работает только по https и на localhost; по адресу в локальной сети его нет
+if ('serviceWorker' in navigator && window.isSecureContext) {
+  navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' }).catch(() => { /* без офлайна */ });
+}
+// Chrome и Android дают поставить трекер своей кнопкой; без этого событие показало бы плашку браузера
+let installPrompt = null;
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  installPrompt = e;
+  renderInstall();
+});
+window.addEventListener('appinstalled', () => { installPrompt = null; renderInstall(); });
+const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+function standalone() {
+  return navigator.standalone === true || !!(window.matchMedia && matchMedia('(display-mode: standalone)').matches);
+}
+function renderInstall() {
+  const st = document.getElementById('apState');
+  document.getElementById('apActions').hidden = !(installPrompt && !standalone());
+  if (standalone()) st.textContent = '✅ Трекер открыт как приложение.';
+  else if (installPrompt) st.textContent = 'Поставь трекер на главный экран — он будет открываться как приложение.';
+  else if (isIOS) st.textContent = 'Чтобы поставить трекер на главный экран, в Safari нажми «Поделиться» → «На экран „Домой“».';
+  else if (!window.isSecureContext) st.textContent = 'Поставить трекер на главный экран можно, только если он открыт по адресу https://….';
+  else st.textContent = 'Чтобы поставить трекер на главный экран, открой меню браузера (⋮) → «Установить приложение» или «Добавить на главный экран».';
+}
+document.getElementById('apInstall').addEventListener('click', () => {
+  if (!installPrompt) return;
+  const p = installPrompt;
+  installPrompt = null; // окно установки можно показать только один раз
+  p.prompt();
+  p.userChoice.then(renderInstall, renderInstall);
+});
 
 // ---------- Профиль игрока: команда, игровой номер, ссылка на fhspb.ru ----------
 // Меняется сразу при вводе, как имя; в закрытом режиме поля неактивны
