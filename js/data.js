@@ -339,6 +339,10 @@ function loadFamily() {
   // Данные одного ребёнка из прошлой версии переезжают в первый профиль
   return familyFrom([load()]);
 }
+// Первое открытие на этом устройстве: ни семьи, ни данных прошлой версии — покажем приветствие
+const firstRun = (() => {
+  try { return !localStorage.getItem(FAMILY_KEY) && !localStorage.getItem(KEY); } catch (e) { return false; }
+})();
 const family = loadFamily();
 // state — всегда профиль того, кто сейчас играет; при смене игрока его содержимое подменяется
 const state = {};

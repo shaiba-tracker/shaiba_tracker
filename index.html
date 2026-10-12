@@ -7,9 +7,9 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;800;900&family=Russo+One&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/base.css?v=9">
-  <link rel="stylesheet" href="css/tabs.css?v=9">
-  <link rel="stylesheet" href="css/screens.css?v=9">
+  <link rel="stylesheet" href="css/base.css?v=10">
+  <link rel="stylesheet" href="css/tabs.css?v=10">
+  <link rel="stylesheet" href="css/screens.css?v=10">
 </head>
 <body>
   <svg width="0" height="0" style="position:absolute" aria-hidden="true">
@@ -86,6 +86,7 @@
       <section id="tab-fame" class="tab"></section>
     <section id="tab-settings" class="tab" aria-label="Настройки">
       <h2 class="set-title">⚙️ Настройки</h2>
+      <p class="set-help"><a href="help.html" target="_blank" rel="noopener">📖 Инструкция для родителей</a></p>
       <div id="pinBar" class="pin-bar" hidden></div>
       <div class="set-grid">
         <div class="set-col">
@@ -311,6 +312,29 @@
     </div>
   </dialog>
 
+  <dialog id="welcomeDialog" class="welcome">
+    <form id="welcomeForm">
+      <h2>🏒 Добро пожаловать в Шайба-трекер!</h2>
+      <p class="w-lead">Трекер привычек для юного хоккеиста: каждая выполненная привычка — заброшенная шайба. Шайбы приносят звания, трофеи и призы.</p>
+      <label class="field"><span>Как зовут хоккеиста?</span>
+        <input id="wName" maxlength="30" autocomplete="off" placeholder="Например: Саша Иванов"></label>
+      <div class="field"><span>С чего начать</span>
+        <div id="wStart" class="seg w-seg" role="group" aria-label="С чего начать">
+          <button type="button" data-start="sample" class="on">🏒 Пример: 10 хоккейных привычек</button>
+          <button type="button" data-start="empty">⬜ Пустой каток</button>
+        </div>
+      </div>
+      <label class="w-check"><input id="wPin" type="checkbox" checked>
+        <span>Сразу создать родительский PIN — чтобы ребёнок не менял прошлые дни, привычки, призы и игроков</span></label>
+      <div class="dlg-actions">
+        <button type="button" id="wHave" class="btn btn-ghost">У меня уже есть данные</button>
+        <span class="spacer"></span>
+        <button type="submit" class="btn btn-red">Начать!</button>
+      </div>
+      <p class="w-help"><a href="help.html" target="_blank" rel="noopener">📖 Как пользоваться трекером</a></p>
+    </form>
+  </dialog>
+
   <dialog id="profDialog">
     <button type="button" class="dlg-x" data-close aria-label="Закрыть окно" title="Закрыть">✕</button>
     <h2>👥 Кто играет?</h2>
@@ -336,7 +360,7 @@
       <li>Нажми на карточку, чтобы сменить игрока.</li>
       <li>У каждого свои привычки, шайбы, Конь-огонь, призы и заметки.</li>
       <li>Общие только PIN и звук.</li>
-      <li>Игрока добавляет родитель (с PIN, если он задан), а удаляет — только родитель с PIN в Настройках.</li>
+      <li>Игрока добавляет и удаляет только родитель с PIN (удаление — в Настройках).</li>
     </ul></div>
   </dialog>
 
@@ -425,12 +449,12 @@
       };
     })();
   </script>
-  <script src="js/data.js?v=9"></script>
-  <script src="js/logic.js?v=9"></script>
-  <script src="js/ui.js?v=9"></script>
-  <script src="js/month.js?v=9"></script>
-  <script src="js/tabs.js?v=9"></script>
-  <script src="js/sync.js?v=9"></script>
-  <script src="js/app.js?v=9"></script>
+  <script src="js/data.js?v=10"></script>
+  <script src="js/logic.js?v=10"></script>
+  <script src="js/ui.js?v=10"></script>
+  <script src="js/month.js?v=10"></script>
+  <script src="js/tabs.js?v=10"></script>
+  <script src="js/sync.js?v=10"></script>
+  <script src="js/app.js?v=10"></script>
 </body>
 </html>

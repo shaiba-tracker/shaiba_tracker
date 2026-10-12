@@ -731,6 +731,17 @@ dialog::backdrop { background: rgba(20,33,61,.45); backdrop-filter: blur(2px); }
 }
 .gear-dot[hidden] { display: none; }
 .sb-gear.on { background: var(--red); }
+.set-help { margin: -4px 0 12px; font-size: 14px; }
+.set-help a, .w-help a { color: var(--blue); }
+/* Приветствие при первом открытии */
+.welcome { width: min(520px, calc(100vw - 32px)); }
+.welcome h2 { margin-top: 0; }
+.w-lead { font-size: 15px; color: var(--muted); margin: 0 0 14px; }
+.w-seg { display: flex; width: 100%; flex-wrap: wrap; border-radius: 20px; }
+.w-seg button { flex: 1 1 180px; }
+.w-check { display: flex; gap: 10px; align-items: flex-start; font-size: 14px; margin: 0 0 14px; cursor: pointer; }
+.w-check input { width: 22px; height: 22px; flex: none; margin: 0; accent-color: var(--blue); }
+.w-help { margin: 12px 0 0; font-size: 14px; text-align: center; }
 /* Синхронизация: значок на табло и блок в Настройках */
 .sb-sync[hidden] { display: none; }
 .sb-sync.err { background: var(--red-d); }

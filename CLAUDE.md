@@ -4,13 +4,13 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project
 
-«Шайба-трекер» is a kids' habit tracker in Russian, styled as a cartoon hockey game. It is built for a young SKA hockey player and his parents. The repository is public: keep the child's real name and other personal data out of the code, docs and commits (the family's data lives only in the browser). The whole UI, all code comments and README.md are in Russian; keep it that way. README.md is the user-facing feature documentation. Update it whenever a feature changes.
+«Шайба-трекер» is a kids' habit tracker in Russian, styled as a cartoon hockey game. It is built for a young SKA hockey player and his parents. The repository is public: keep the child's real name and other personal data out of the code, docs and commits (the family's data lives only in the browser). The whole UI, all code comments and README.md are in Russian; keep it that way. README.md is the user-facing feature documentation. Update it whenever a feature changes. `help.html` is a standalone, plain-language guide for other families (Russian, addresses the parent as «ты», own inline styles): update it too when a feature it describes changes. Other families use the public site with their own data in their own browser or their own private sync repo; never add anything that sends their data to us.
 
 Workflow preference of the owner: before implementing a feature, ask clarifying questions (with recommended options) and write code only after the answers.
 
 ## Running
 
-There is no build, no package manager and no tests in the repo. Files: `index.html`, `css/*.css` (3), `js/*.js` (7).
+There is no build, no package manager and no tests in the repo. Files: `index.html`, `help.html`, `css/*.css` (3), `js/*.js` (7).
 
 - Published with GitHub Pages from `main` (repo `shaiba-tracker/shaiba_tracker`, public): https://shaiba-tracker.github.io/shaiba_tracker/. A `git push` to `main` deploys in about a minute, so commit and push only when asked. `.nojekyll` turns off Jekyll. The old private history is in the `archive` remote/branch (a private repo); never push it to `origin`.
 - For local checks open `index.html` directly, or serve the folder (also for phones/TV on the LAN):
@@ -59,7 +59,7 @@ Tips:
 - `player{club, number, fhId}`: the player profile (team, game number, fhspb.ru link), edited in the «Игрок» block of Settings and shown as a card on the Path tab (with `state.team` as the name). `fhId` is the fhspb.ru PlayerID GUID only; `fhLink`/`fhPhoto` build the page and photo URLs, the photo is hot-linked and never stored.
 - `pcolor` (the child's color), `reportSeen`; the shared `pin{hash, word}` and `lastBackup`.
 
-**Sync** (`js/sync.js`). The family is mirrored to `family.json` in a private GitHub repo through the REST contents API (CORS works from the browser). The connection `conf = {repo, token, sha, base}` lives only in localStorage key `puck-sync-v1`, never in `family`, the cloud or backup files. `cloudData()` is the family without the device-local `active` and `shared.sound`. `save()` runs the `afterSave` hooks; sync debounces a push (about 2.5 s) and also pulls on start, on `visibilitychange`, on `online` and every 60 s. Each run: GET the file; if its sha differs from `conf.sha`, `merge3(base, local, remote)` and `applyCloud()` (goes through `familyFromFile()`/`migrate()`, keeps `active` and sound); then PUT with the remote sha, retrying on 409. Merge rules: a one-sided change wins; objects merge by key; string arrays (log ids, owned, order) and arrays of `{id}` objects (habits, prizes, orders) merge as sets (one-sided deletions stay deleted); `shop.spent` adds both deltas; otherwise this device wins. Sync waits while any `<dialog>` is open. A public repo is refused on connect. `backupDue()` is off while sync is on. A new data field needs nothing extra for sync unless it is device-local (then strip it in `cloudData()` and keep it in `applyCloud()`). Tests mock `fetch` for `api.github.com`.
+**Sync** (`js/sync.js`). The family is mirrored to `family.json` in a private GitHub repo through the REST contents API (CORS works from the browser). The connection `conf = {repo, token, sha, base}` lives only in localStorage key `puck-sync-v1`, never in `family`, the cloud or backup files. `cloudData()` is the family without the device-local `active` and `shared.sound`. `save()` runs the `afterSave` hooks; sync debounces a push (about 2.5 s) and also pulls on start, on `visibilitychange`, on `online` and every 60 s. Each run: GET the file; if its sha differs from `conf.sha`, `merge3(base, local, remote)` and `applyCloud()` (goes through `familyFromFile()`/`migrate()`, keeps `active` and sound); then PUT with the remote sha, retrying on 409. Merge rules: a one-sided change wins; objects merge by key; string arrays (log ids, owned, order) and arrays of `{id}` objects (habits, prizes, orders) merge as sets (one-sided deletions stay deleted); `shop.spent` adds both deltas; otherwise this device wins. Sync waits while any `<dialog>` is open (resumes on the dialog `close` event and also rechecks every 2 s). A public repo is refused on connect. `backupDue()` is off while sync is on. A new data field needs nothing extra for sync unless it is device-local (then strip it in `cloudData()` and keep it in `applyCloud()`). Tests mock `fetch` for `api.github.com`.
 
 **Derived values are always recomputed, never stored.**
 - Rank: `totalGoals()` = all entries in `log`.
@@ -70,6 +70,8 @@ Tips:
 When switching or deleting a player call `resetView()` to drop per-child UI state (month, chart, order mode, pending confirms). Any new UI state tied to a child's data should be reset there.
 
 **Rendering:** every tab has a `render*()` that rebuilds its `innerHTML` from template strings. After any mutation, call `save()` and then `renderAll()`. `renderAll()` first runs `checkChallenge()` (weekly-challenge completion and its celebration), then re-renders the header, the Month tab and the visible tab. Interaction uses delegated click handlers on the tab containers with `data-*` attributes.
+
+**First run.** `firstRun` (data.js) is true when localStorage has neither `puck-family-v1` nor the legacy key. Then the start code opens `#welcomeDialog` (name, sample or empty habits, optional PIN creation via `openPin('set')`, «У меня уже есть данные» → Settings) instead of the month report. Esc is blocked there. Test pages close it unless `window.__keepWelcome` is set.
 
 **Dialogs:**
 - Native `<dialog>` + `showModal()`.
@@ -90,7 +92,7 @@ Protected actions:
 - issuing, editing and cancelling prizes;
 - adding, editing and deleting habits (when a PIN exists), habit order and groups;
 - replacing the weekly challenge;
-- deleting a player (always, even without PIN) and adding one (when a PIN exists). Switching between players is free.
+- adding and deleting a player (always, even without PIN). Switching between players is free.
 
 **Mascot:** «Конь-огонь» is an SVG. `horseInner()` draws the body plus the worn SKA gear layers into `<symbol id="horse">`, reused with `<use href="#horse">`.
 

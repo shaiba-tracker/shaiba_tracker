@@ -180,7 +180,8 @@ async function syncNow() {
   if (!conf || pendingCloud) return;
   if (syncRunning) { syncAgain = true; return; }
   // Пока открыто окно (подходы, день, привычка), данные под рукой не меняем
-  if (document.querySelector('dialog[open]')) { setSync('wait'); return; }
+  // (и проверяем снова каждые 2 секунды — не только по событию закрытия окна)
+  if (document.querySelector('dialog[open]')) { setSync('wait'); syncSoon(2000); return; }
   clearTimeout(syncTimer);
   syncRunning = true;
   setSync('busy');

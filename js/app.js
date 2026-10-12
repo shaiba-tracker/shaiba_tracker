@@ -311,7 +311,7 @@ document.getElementById('profList').addEventListener('click', (e) => {
   if (c) switchProfile(c.dataset.prof);
 });
 document.getElementById('profAdd').addEventListener('click', () =>
-  requirePin('Добавить игрока может родитель.', () => showProfForm(true)));
+  requirePin('Добавить игрока может только родитель.', () => showProfForm(true), true));
 document.getElementById('profCancel').addEventListener('click', () => showProfForm(false));
 profForm.addEventListener('submit', (e) => {
   e.preventDefault();
@@ -407,6 +407,37 @@ setInterval(() => {
   if (k !== lastDay) { lastDay = k; viewMonth = new Date(today().getFullYear(), today().getMonth(), 1); scrollToToday = true; renderAll(); checkReport(); }
 }, 60000);
 
+// ---------- Приветствие: первое открытие на этом устройстве ----------
+const welDlg = document.getElementById('welcomeDialog');
+let welStart = 'sample'; // sample — пример привычек, empty — пустой каток
+document.getElementById('wStart').addEventListener('click', (e) => {
+  const b = e.target.closest('[data-start]');
+  if (!b) return;
+  welStart = b.dataset.start;
+  document.querySelectorAll('#wStart [data-start]').forEach((x) => x.classList.toggle('on', x === b));
+});
+// Без выбора окно не закрывается: Esc ничего не делает
+welDlg.addEventListener('cancel', (e) => e.preventDefault());
+document.getElementById('welcomeForm').addEventListener('submit', (e) => {
+  e.preventDefault();
+  const name = document.getElementById('wName').value.trim().slice(0, 30);
+  if (!name) { document.getElementById('wName').focus(); return; }
+  state.team = name;
+  if (welStart === 'empty') state.habits = [];
+  save();
+  welDlg.close();
+  resetView();
+  renderAll();
+  if (document.getElementById('wPin').checked && !hasPin()) openPin('set', 'Почти готово!');
+});
+// Второе устройство: данные придут из синхронизации или из файла копии
+document.getElementById('wHave').addEventListener('click', () => {
+  welDlg.close();
+  showTab('settings');
+  document.getElementById('syState').scrollIntoView({ block: 'center' });
+});
+
 renderAll();
-checkReport();
+if (firstRun) welDlg.showModal();
+else checkReport();
 syncSoon(300);
