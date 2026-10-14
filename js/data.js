@@ -167,6 +167,7 @@ function cleanProfile(s) {
     if (!isKey(h.createdAt)) h.createdAt = dkey(today());
     if (has(UNITS, h.unit) && posInt(h.goal, 9999)) h.goal = posInt(h.goal, 9999);
     else { delete h.unit; delete h.goal; }
+    if (h.goal && posInt(h.parts, 20) > 1) h.parts = posInt(h.parts, 20); else delete h.parts;
     return h;
   });
   s.log = byDate(s.log, (a) => {

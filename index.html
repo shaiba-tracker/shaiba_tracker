@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Шайба-трекер</title>
   <!-- Приложение на главном экране: описание, иконки, цвет полосы состояния -->
-  <link rel="manifest" href="manifest.webmanifest?v=12">
+  <link rel="manifest" href="manifest.webmanifest?v=13">
   <link rel="icon" type="image/png" href="icons/icon-192.png">
   <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
   <meta name="theme-color" content="#a9d6ff">
@@ -14,9 +14,9 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;800;900&family=Russo+One&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/base.css?v=12">
-  <link rel="stylesheet" href="css/tabs.css?v=12">
-  <link rel="stylesheet" href="css/screens.css?v=12">
+  <link rel="stylesheet" href="css/base.css?v=13">
+  <link rel="stylesheet" href="css/tabs.css?v=13">
+  <link rel="stylesheet" href="css/screens.css?v=13">
 </head>
 <body>
   <svg width="0" height="0" style="position:absolute" aria-hidden="true">
@@ -250,7 +250,11 @@
           <span>Норма в день</span>
           <input id="hGoal" type="number" inputmode="numeric" min="1" max="9999" placeholder="20">
         </label>
-        <p class="muted hint">Шайба засчитывается, когда за день набрана норма. Подходы складываются.</p>
+        <label class="field">
+          <span>На сколько подходов делить</span>
+          <input id="hParts" type="number" inputmode="numeric" min="1" max="20" placeholder="Как получится">
+        </label>
+        <p class="muted hint">Шайба засчитывается, когда за день набрана норма. Подходы складываются. Если указать число подходов, трекер подскажет размер каждого.</p>
       </div>
       <div class="dlg-actions">
         <button type="button" id="hDelete" class="btn btn-ghost danger">Удалить</button>
@@ -467,12 +471,12 @@
       };
     })();
   </script>
-  <script src="js/data.js?v=12"></script>
-  <script src="js/logic.js?v=12"></script>
-  <script src="js/ui.js?v=12"></script>
-  <script src="js/month.js?v=12"></script>
-  <script src="js/tabs.js?v=12"></script>
-  <script src="js/sync.js?v=12"></script>
-  <script src="js/app.js?v=12"></script>
+  <script src="js/data.js?v=13"></script>
+  <script src="js/logic.js?v=13"></script>
+  <script src="js/ui.js?v=13"></script>
+  <script src="js/month.js?v=13"></script>
+  <script src="js/tabs.js?v=13"></script>
+  <script src="js/sync.js?v=13"></script>
+  <script src="js/app.js?v=13"></script>
 </body>
 </html>

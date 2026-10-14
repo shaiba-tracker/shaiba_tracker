@@ -320,19 +320,26 @@ function renderSets() {
   const on = isDone(h.id, k);
   const best = bestOf(h.id);
   document.getElementById('sTitle').textContent = `${h.emoji} ${h.name}`;
-  document.getElementById('sDate').textContent = `${human(k)}${k === dkey(today()) ? ' · сегодня' : ''} · норма ${h.goal} ${u}`;
+  const plan = h.parts ? ` · ${h.parts} ${plural(h.parts, ['подход', 'подхода', 'подходов'])} по ${Math.ceil(h.goal / h.parts)}` : '';
+  document.getElementById('sDate').textContent = `${human(k)}${k === dkey(today()) ? ' · сегодня' : ''} · норма ${h.goal} ${u}${plan}`;
   const p = Math.min(sum / h.goal, 1);
+  const rest = Math.max(h.goal - sum, 0);
+  // Сколько подходов по плану ещё впереди и какой из них следующий: остаток делится поровну
+  const left = h.parts ? Math.max(h.parts - sets.length, 0) : 0;
+  const next = rest ? Math.ceil(rest / Math.max(left, 1)) : 0;
   document.getElementById('sProgress').innerHTML = `
-    <div class="s-sum"><b>${sum}</b> / ${h.goal} ${u}</div>
+    <div class="s-sum">${on ? `<b>${sum}</b> / ${h.goal} ${u}` : `Осталось <b>${rest}</b> из ${h.goal} ${u}`}</div>
     <div class="s-bar" style="--c:${h.color}"><i style="width:${p * 100}%"></i></div>
-    <div class="s-state">${on ? (sets.length ? '✅ Норма выполнена — шайба!' : '✅ Отмечено без количества') : `До нормы ещё ${h.goal - sum} ${u}`}</div>`;
-  document.getElementById('sList').innerHTML = sets.length
-    ? sets.map((v, i) => `<button type="button" class="chip" data-del="${i}" aria-label="Подход ${i + 1}: ${v} ${u} — удалить" title="Удалить подход">
-        <small>${i + 1}.</small> ${v} ${u} <span aria-hidden="true">✕</span></button>`).join('')
-    : '<span class="muted">Подходов пока нет</span>';
-  const quick = [...new Set([...UNITS[h.unit].quick, h.goal])].sort((a, b) => a - b);
-  document.getElementById('sQuick').innerHTML = quick.map((v) =>
-    `<button type="button" class="btn btn-ghost" data-quick="${v}">+${v}${v === h.goal ? ' 🎯' : ''}</button>`).join('');
+    <div class="s-state">${on ? (sets.length ? '✅ Норма выполнена — шайба!' : '✅ Отмечено без количества') : sum ? `Сделано ${sum} ${u}` : 'Начинаем!'}</div>`;
+  const slots = on ? 0 : Math.min(left, Math.ceil(rest / next || 0));
+  const chips = sets.map((v, i) => `<button type="button" class="chip" data-del="${i}" aria-label="Подход ${i + 1}: ${v} ${u} — удалить" title="Удалить подход">
+        <small>${i + 1}.</small> ${v} ${u} <span aria-hidden="true">✕</span></button>`).join('') +
+    Array.from({ length: slots }, (_, i) => `<span class="chip slot"><small>${sets.length + i + 1}.</small> ${next} ${u}</span>`).join('');
+  document.getElementById('sList').innerHTML = chips || '<span class="muted">Подходов пока нет</span>';
+  // Первая кнопка — подсказка «сколько сделать сейчас»: следующий подход по плану или весь остаток
+  const quick = UNITS[h.unit].quick.filter((v) => v !== next);
+  document.getElementById('sQuick').innerHTML = (next && !on ? `<button type="button" class="btn btn-blue" data-quick="${next}">+${next} 🎯</button>` : '') +
+    quick.map((v) => `<button type="button" class="btn btn-ghost" data-quick="${v}">+${v}</button>`).join('');
   document.getElementById('sUnit').textContent = u;
   document.getElementById('sRecord').textContent = best.v
     ? `🏅 Рекорд: ${best.v} ${u} · ${human(best.k)}`
@@ -526,6 +533,7 @@ const colorPick = document.getElementById('colorPick');
 const modeSeg = document.getElementById('hMode');
 const unitSelect = document.getElementById('hUnit');
 const goalInput = document.getElementById('hGoal');
+const partsInput = document.getElementById('hParts');
 let editing = null, pickEmoji = EMOJIS[0], pickColor = COLORS[0], pickMode = 'check';
 let pickGroup = 'ofp', groupTouched = false;
 const groupSeg = document.getElementById('hGroup');
@@ -560,6 +568,7 @@ function openDialog(h) {
   document.getElementById('hGroupField').hidden = !!h;
   unitSelect.value = isCount(h) ? h.unit : 'reps';
   goalInput.value = isCount(h) ? h.goal : '';
+  partsInput.value = isCount(h) && h.parts ? h.parts : '';
   paintPickers();
   dlg.showModal();
   nameInput.focus();
@@ -589,7 +598,9 @@ form.addEventListener('submit', (e) => {
   const fields = { name, emoji: pickEmoji, color: pickColor };
   const h = editing || { id: uid(), createdAt: dkey(today()) };
   Object.assign(h, fields);
+  const parts = Math.min(Math.round(Number(partsInput.value)), 20);
   if (pickMode === 'count') { h.unit = unitSelect.value; h.goal = goal; } else { delete h.unit; delete h.goal; }
+  if (pickMode === 'count' && parts > 1) h.parts = parts; else delete h.parts;
   if (!editing) { h.group = pickGroup; state.habits.push(h); sortHabits(state); }
   // Новая норма сразу пересчитывает сегодняшнюю шайбу; прошлые дни не трогаем
   const tk = dkey(today());
