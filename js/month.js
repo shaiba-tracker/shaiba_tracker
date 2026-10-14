@@ -362,7 +362,14 @@ setsForm.addEventListener('submit', (e) => {
   setsInput.value = '';
   setsInput.focus();
 });
+// На цифровой клавиатуре iPhone нет «Ввода»: число, оставленное в поле, записываем при закрытии окна
+function flushSets() {
+  const v = setsInput.value;
+  setsInput.value = '';
+  if (v) addFromDialog(Number(v));
+}
 setsDlg.addEventListener('click', (e) => {
+  if (e.target.closest('[data-close]')) { flushSets(); return; }
   const q = e.target.closest('[data-quick]');
   if (q) { addFromDialog(Number(q.dataset.quick)); return; }
   const del = e.target.closest('[data-del]');
@@ -372,7 +379,9 @@ setsDlg.addEventListener('click', (e) => {
     renderSets();
   }
 });
-document.getElementById('sDone').addEventListener('click', () => setsDlg.close());
+document.getElementById('sDone').addEventListener('click', () => { flushSets(); setsDlg.close(); });
+setsDlg.addEventListener('cancel', flushSets);
+setsDlg.addEventListener('close', flushSets);
 
 // ---------- Окно дня: «скамейка запасных» ----------
 const dayDlg = document.getElementById('dayDialog');
