@@ -3,7 +3,7 @@
 // видит новый sw.js, в фоне скачивает новую версию, а при следующем открытии показывает уже её.
 'use strict';
 
-const V = 'v=14';
+const V = 'v=15';
 const CACHE = 'shaiba-' + V;
 const FONTS = 'shaiba-fonts';
 const FILES = [

@@ -37,11 +37,13 @@ function guessGroup(emoji) {
   const gi = EMOJI_GROUPS.findIndex((g) => g.list.some(([em]) => em === emoji));
   return gi >= 0 ? GROUPS[gi].id : 'ofp';
 }
-const groupIndex = (id) => GROUPS.findIndex((g) => g.id === id);
+// Свои группы лежат в профиле ребёнка (s.groups: {id, emoji, label}) и идут после стандартных
+const groupsOf = (s) => GROUPS.concat((s && s.groups) || []);
+const groupIndex = (id, s = state) => groupsOf(s).findIndex((g) => g.id === id);
 // Держим массив привычек упорядоченным: сначала по группе, внутри — как расставил родитель
 function sortHabits(s) {
   s.habits = s.habits.map((h, i) => [h, i])
-    .sort((a, b) => groupIndex(a[0].group) - groupIndex(b[0].group) || a[1] - b[1])
+    .sort((a, b) => groupIndex(a[0].group, s) - groupIndex(b[0].group, s) || a[1] - b[1])
     .map(([h]) => h);
 }
 const COLORS = ['#1e6fd9', '#e63946', '#2a9d8f', '#f4a261', '#8e5bd8', '#ff6fae'];
@@ -159,6 +161,10 @@ function byDate(o, fix) {
 }
 function cleanProfile(s) {
   s.team = isText(s.team) ? s.team.trim().slice(0, 30) : 'Игрок';
+  // Свои группы привычек: id и значок попадают в разметку, поэтому проверяем; стандартные id занять нельзя
+  const seen = new Set(GROUPS.map((g) => g.id));
+  s.groups = (Array.isArray(s.groups) ? s.groups : []).filter((g) => isObj(g) && isId(g.id) && isEmoji(g.emoji) && isText(g.label) && !seen.has(g.id) && seen.add(g.id))
+    .map((g) => ({ id: g.id, emoji: g.emoji, label: g.label.trim().slice(0, 20) }));
   s.habits = s.habits.filter(isObj).map((h, i) => {
     if (!isId(h.id)) h.id = uid();
     if (!isText(h.name)) h.name = 'Привычка';
@@ -259,7 +265,7 @@ function migrate(s) {
   // Цвет игрока: плашка с именем в шапке и карточка в списке игроков
   if (!s.pcolor) s.pcolor = COLORS[0];
   // Группы: старым привычкам подбираем группу по значку
-  s.habits.forEach((h) => { if (groupIndex(h.group) < 0) h.group = guessGroup(h.emoji); });
+  s.habits.forEach((h) => { if (groupIndex(h.group, s) < 0) h.group = guessGroup(h.emoji); });
   sortHabits(s);
   if (!(s.v >= 3)) {
     s.habits.forEach((h) => {

@@ -104,10 +104,10 @@ function renderToday() {
       <td class="sum">${sum}</td>
     </tr>`;
   };
-  const rows = GROUPS.map((g) => {
+  const rows = groupsOf(state).map((g) => {
     const hs = habits.filter((h) => h.group === g.id);
     if (!hs.length) return '';
-    return `<tr class="grp"><th class="hname grp-h" scope="rowgroup">${g.emoji} ${g.label}</th><td class="grp-fill" colspan="${days.length + 1}"></td></tr>`
+    return `<tr class="grp"><th class="hname grp-h" scope="rowgroup">${g.emoji} ${esc(g.label)}</th><td class="grp-fill" colspan="${days.length + 1}"></td></tr>`
       + hs.map(rowOf).join('');
   }).join('');
 
@@ -178,15 +178,18 @@ function renderToday() {
 function orderPanel() {
   return `<section class="order-panel">
     <h3 class="set-h">↕️ Порядок и группы</h3>
-    ${GROUPS.map((g) => {
+    ${groupsOf(state).map((g) => {
       const hs = state.habits.filter((h) => h.group === g.id);
+      const own = state.groups.includes(g);
       return `<div class="order-grp">
-        <div class="order-gh">${g.emoji} ${g.label}</div>
+        <div class="order-gh"><span>${g.emoji} ${esc(g.label)}</span>${own ? `
+          <button type="button" class="btn btn-ghost mv" data-grp-rename="${g.id}" aria-label="Переименовать группу «${esc(g.label)}»">✏️</button>
+          <button type="button" class="btn btn-ghost mv" data-grp-del="${g.id}" aria-label="Удалить группу «${esc(g.label)}»">🗑️</button>` : ''}</div>
         ${hs.length ? hs.map((h, i) => `<div class="order-row" style="--c:${h.color}">
           <span class="em" aria-hidden="true">${h.emoji}</span>
           <span class="nm">${esc(h.name)}</span>
-          <select data-group="${h.id}" aria-label="Группа «${esc(h.name)}»">${GROUPS.map((x) =>
-            `<option value="${x.id}"${x.id === g.id ? ' selected' : ''}>${x.emoji} ${x.label}</option>`).join('')}</select>
+          <select data-group="${h.id}" aria-label="Группа «${esc(h.name)}»">${groupsOf(state).map((x) =>
+            `<option value="${x.id}"${x.id === g.id ? ' selected' : ''}>${x.emoji} ${esc(x.label)}</option>`).join('')}</select>
           <button type="button" class="btn btn-ghost mv" data-move="${h.id}|-1" aria-label="«${esc(h.name)}» выше"${i === 0 ? ' disabled' : ''}>▲</button>
           <button type="button" class="btn btn-ghost mv" data-move="${h.id}|1" aria-label="«${esc(h.name)}» ниже"${i === hs.length - 1 ? ' disabled' : ''}>▼</button>
         </div>`).join('') : '<p class="muted order-empty">Пока пусто</p>'}
@@ -195,6 +198,7 @@ function orderPanel() {
     ${noteList([
       '▲▼ — переставить привычку внутри группы.',
       'Выбор группы в строке привычки переносит её в другую группу, в самый конец.',
+      'Свою группу можно переименовать (✏️) или удалить (🗑️): её привычки перейдут в «Дом».',
       'Этот порядок виден в таблице, Статистике и Зале славы.',
     ])}
     <div class="dlg-actions"><span class="spacer"></span><button type="button" class="btn btn-blue" data-order-done>Готово</button></div>
@@ -259,6 +263,24 @@ elToday.addEventListener('click', (e) => {
     return;
   }
   if (e.target.closest('[data-order-done]')) { orderMode = false; scrollToToday = true; renderToday(); return; }
+  const gr = e.target.closest('[data-grp-rename]');
+  if (gr) {
+    const g = state.groups.find((x) => x.id === gr.dataset.grpRename);
+    const name = g && (prompt('Новое название группы', g.label) || '').trim().slice(0, 20);
+    if (name) { g.label = name; save(); renderAll(); }
+    return;
+  }
+  const gd = e.target.closest('[data-grp-del]');
+  if (gd) {
+    const g = state.groups.find((x) => x.id === gd.dataset.grpDel);
+    if (!g || !confirm(`Удалить группу «${g.label}»? Её привычки перейдут в «Дом».`)) return;
+    state.habits.forEach((h) => { if (h.group === g.id) h.group = 'home'; });
+    state.groups = state.groups.filter((x) => x !== g);
+    sortHabits(state);
+    save();
+    renderAll();
+    return;
+  }
   const mv = e.target.closest('[data-move]');
   if (mv) { const [id, d] = mv.dataset.move.split('|'); moveHabit(id, Number(d)); return; }
   const nav = e.target.closest('[data-month]');
@@ -544,7 +566,7 @@ const unitSelect = document.getElementById('hUnit');
 const goalInput = document.getElementById('hGoal');
 const partsInput = document.getElementById('hParts');
 let editing = null, pickEmoji = EMOJIS[0], pickColor = COLORS[0], pickMode = 'check';
-let pickGroup = 'ofp', groupTouched = false;
+let pickGroup = 'ofp', groupTouched = false, newGroupOpen = false;
 const groupSeg = document.getElementById('hGroup');
 
 unitSelect.innerHTML = Object.entries(UNITS).map(([key, u]) => `<option value="${key}">${u.label}</option>`).join('');
@@ -555,8 +577,10 @@ function paintPickers() {
       `<button type="button" data-emoji="${em}" class="${em === pickEmoji ? 'on' : ''}" aria-label="${label}" title="${label}">${em}</button>`).join('')).join('');
   colorPick.innerHTML = COLORS.map((c) =>
     `<button type="button" data-color="${c}" class="swatch${c === pickColor ? ' on' : ''}" style="background:${c}" aria-label="Цвет ${c}"></button>`).join('');
-  groupSeg.innerHTML = GROUPS.map((g) =>
-    `<button type="button" data-group-pick="${g.id}" class="${g.id === pickGroup ? 'on' : ''}">${g.emoji} ${g.label}</button>`).join('');
+  groupSeg.innerHTML = groupsOf(state).map((g) =>
+    `<button type="button" data-group-pick="${g.id}" class="${g.id === pickGroup ? 'on' : ''}">${g.emoji} ${esc(g.label)}</button>`).join('')
+    + '<button type="button" data-group-new>＋ Своя</button>';
+  document.getElementById('hGroupNew').hidden = !newGroupOpen;
   modeSeg.querySelectorAll('[data-mode]').forEach((b) => b.classList.toggle('on', b.dataset.mode === pickMode));
   document.getElementById('hCountFields').hidden = pickMode !== 'count';
   goalInput.required = pickMode === 'count';
@@ -574,6 +598,7 @@ function openDialog(h) {
   // Группу новой привычки подсказывает значок; у старой она меняется в режиме «Порядок» (с PIN)
   pickGroup = h ? h.group : guessGroup(pickEmoji);
   groupTouched = false;
+  newGroupOpen = false;
   document.getElementById('hGroupField').hidden = !!h;
   unitSelect.value = isCount(h) ? h.unit : 'reps';
   goalInput.value = isCount(h) ? h.goal : '';
@@ -586,7 +611,30 @@ emojiPick.addEventListener('click', (e) => {
   const b = e.target.closest('[data-emoji]');
   if (b) { pickEmoji = b.dataset.emoji; if (!editing && !groupTouched) pickGroup = guessGroup(pickEmoji); paintPickers(); }
 });
+const gEmoji = document.getElementById('hGroupEmoji');
+const gName = document.getElementById('hGroupName');
+function addGroup() {
+  const label = gName.value.trim().slice(0, 20);
+  const emoji = gEmoji.value.trim();
+  if (!label) { gName.focus(); return; }
+  if (!isEmoji(emoji)) { gEmoji.focus(); return; }
+  const g = { id: 'g' + uid(), emoji, label };
+  state.groups.push(g);
+  pickGroup = g.id;
+  groupTouched = true;
+  newGroupOpen = false;
+  gName.value = '';
+  paintPickers();
+}
+document.getElementById('hGroupAdd').addEventListener('click', addGroup);
+gName.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); addGroup(); } });
 groupSeg.addEventListener('click', (e) => {
+  if (e.target.closest('[data-group-new]')) {
+    newGroupOpen = !newGroupOpen;
+    paintPickers();
+    if (newGroupOpen) gName.focus();
+    return;
+  }
   const b = e.target.closest('[data-group-pick]');
   if (b) { pickGroup = b.dataset.groupPick; groupTouched = true; paintPickers(); }
 });

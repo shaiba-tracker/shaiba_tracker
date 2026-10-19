@@ -359,6 +359,7 @@ profForm.addEventListener('submit', (e) => {
   if (src) {
     // Привычки и призы копируются, отметки — нет: новый игрок начинает с сегодняшнего дня
     p.habits = src.habits.map((h) => Object.assign({}, h, { createdAt: dkey(today()) }));
+    p.groups = (src.groups || []).map((g) => Object.assign({}, g));
     p.prizes = (src.prizes || []).map((x) => Object.assign({}, x));
   }
   migrate(p);

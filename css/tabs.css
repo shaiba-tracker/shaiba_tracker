@@ -980,3 +980,14 @@ tbody tr.grp:hover td { background-color: var(--ice); }
 /* Отступы вместо встроенных style="…" в шаблонах */
 .gap-top { margin-top: 18px; }
 .note.tight { margin-top: -6px; }
+
+/* Своя группа привычек */
+.seg-wrap { flex-wrap: wrap; border-radius: 18px; }
+.grp-new { display: flex; gap: 8px; margin-top: 8px; }
+.grp-new[hidden] { display: none; }
+.grp-new input { font: inherit; padding: 6px 10px; border: 2px solid var(--ice-3); border-radius: 10px; min-width: 0; }
+.grp-new input:first-child { width: 56px; text-align: center; flex: none; }
+.grp-new input:nth-child(2) { flex: 1; }
+.order-gh { display: flex; align-items: center; gap: 6px; }
+.order-gh > span { flex: 1; }
+.order-gh .mv { width: 30px; height: 30px; font-size: 13px; }
